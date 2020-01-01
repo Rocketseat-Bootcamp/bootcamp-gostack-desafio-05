@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 export const Loading = styled.div`
   color: #fff;
@@ -86,7 +86,7 @@ export const IssueList = styled.ul`
           font-size: 12px;
           font-weight: 600;
           height: 20px;
-          padding: 10px;
+          padding: 3px 5px;
           margin-left: 10px;
         }
       }
@@ -99,3 +99,19 @@ export const IssueList = styled.ul`
     }
   }
 `;
+
+export const IssueFilterStatus = styled.div`
+  select {
+    height: 40px;
+    border-radius: 50%;
+    background: #6c55b9;
+    color: #fff;
+    text-transform: uppercase;
+  }
+`;
+
+export const OptionFilterStatus = styled.option.attrs(props => ({
+  selected: props.selected,
+  defaultValue: props.value,
+  text: props.label
+}))``;
