@@ -5,7 +5,7 @@ import Select from "react-select";
 import PropTypes from "prop-types";
 import api from "../../services/api";
 
-import { Loading, Owner, IssueList } from "./styles";
+import { Loading, Owner, IssueList, PageIssueList } from "./styles";
 import Container from "../../components/Container";
 
 export default class Repository extends Component {
@@ -18,6 +18,7 @@ export default class Repository extends Component {
   };
 
   state = {
+    page: 1,
     repository: {},
     issues: [],
     loading: true,
@@ -62,32 +63,51 @@ export default class Repository extends Component {
     });
   }
 
-  handleStatus = async status => {
-    this.setState({ valueStatus: status });
-    const issues = await this.getIssues();
-
-    this.setState({
-      issues: issues.data
-    });
+  componentDidUpdate = async (_, prevState) => {
+    if (
+      this.state.valueStatus != prevState.valueStatus ||
+      this.state.page != prevState.page
+    ) {
+      const issues = await this.getIssues();
+      this.setState({ issues: issues.data });
+    }
   };
 
-  getIssues = async (per_page = 5) => {
+  handlePage = async page => {
+    const countPage =
+      page == "next" ? this.state.page + 1 : this.state.page - 1;
+    this.setState({
+      page: countPage
+    });
+  };
+  handleStatus = async status => this.setState({ valueStatus: status });
+
+  getIssues = async () => {
     const { match } = this.props;
     const {
-      valueStatus: { value }
+      valueStatus: { value },
+      page
     } = this.state;
     const repoName = decodeURIComponent(match.params.repository);
 
     return await api.get(`/repos/${repoName}/issues`, {
       params: {
         state: value,
-        per_page: per_page
+        page: page,
+        per_page: 5
       }
     });
   };
 
   render() {
-    const { repository, issues, loading, options, valueStatus } = this.state;
+    const {
+      repository,
+      issues,
+      loading,
+      options,
+      valueStatus,
+      page
+    } = this.state;
 
     {
       if (loading) {
@@ -127,6 +147,20 @@ export default class Repository extends Component {
             </li>
           ))}
         </IssueList>
+
+        <PageIssueList>
+          <button
+            type="button"
+            disabled={page < 2}
+            onClick={() => this.handlePage("back")}
+          >
+            Anterior
+          </button>
+          <span>Página {page}</span>
+          <button type="button" onClick={() => this.handlePage("next")}>
+            Próximo
+          </button>
+        </PageIssueList>
       </Container>
     );
   }
